@@ -1,0 +1,522 @@
+Phích
+phichkocony1nam
+Idle
+
+Unmute
+
+
+
+Text Channel
+med cul:assignment
+Search med cul﻿
+assignment chat
+Welcome to #assignment!
+This is the start of the #assignment channel. 
+
+Edit Channel
+July 3, 2026
+
+Phích — 7/3/2026 8:21 PMFriday, July 3, 2026 8:21 PM
+
+Modify Attachment
+July 27, 2026
+
+Thái Kiệt — 7/27/2026 1:56 AMMonday, July 27, 2026 1:56 AM
+
+[1:57 AM]Monday, July 27, 2026 1:57 AM
+
+
+
+Phích — 7/27/2026 10:39 PMMonday, July 27, 2026 10:39 PM
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <title>VR Room - Grab & Place Fix</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+Expand (240 lines)
+message.txt
+message.txt (12 KB)
+12 KB
+Modify Attachment
+
+1
+Add Reaction
+:thumbsdown:
+Click to react
+:100:
+Click to react
+:thumbsup:
+Click to react
+Add Reaction
+Edit
+Forward
+More
+
+DH — 7/27/2026 11:20 PMMonday, July 27, 2026 11:20 PM
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <title>VR Room - Grab & Place Fix</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+Expand (271 lines)
+message.txt
+message.txt (14 KB)
+14 KB
+:thumbsdown:
+Click to react
+:100:
+Click to react
+:thumbsup:
+Click to react
+Add Reaction
+Reply
+Forward
+More
+July 28, 2026
+
+Thái Kiệt — 7/28/2026 12:10 AMTuesday, July 28, 2026 12:10 AM
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <title>VR Room - Grab & Place Fix</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+Expand (328 lines)
+message.txt
+message.txt (16 KB)
+16 KB
+:thumbsdown:
+Click to react
+:100:
+Click to react
+:thumbsup:
+Click to react
+Add Reaction
+Reply
+Forward
+More
+
+DH — 7/28/2026 1:58 AMTuesday, July 28, 2026 1:58 AM
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <title>VR Room - Grab & Place Fix</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+Expand (390 lines)
+message.txt
+message.txt (19 KB)
+19 KB
+:thumbsdown:
+Click to react
+:100:
+Click to react
+:thumbsup:
+Click to react
+Add Reaction
+Reply
+Forward
+More
+[1:58 AM]Tuesday, July 28, 2026 1:58 AM
+collision full
+
+Message #assignment
+﻿
+Upgrade your friends! Gift them awesome chat perks with Nitro.
+Send GIF
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <title>VR Room - Grab & Place Fix</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/aframe-extras@7.2.0/dist/aframe-extras.min.js"></script>
+  <style>
+    body { margin: 0; }
+    #vignette {
+      position: fixed; inset: 0; pointer-events: none; z-index: 999;
+      background: radial-gradient(ellipse at center, rgba(0,0,0,0) 50%, rgba(5,8,5,0.5) 100%);
+    }
+  </style>
+</head>
+<body>
+
+  <div id="vignette"></div>
+
+  <script>
+    /* ============================================================
+       Component 1-4: (Môi trường, Di chuyển, Va chạm - Giữ nguyên)
+    ============================================================ */
+    AFRAME.registerComponent('flicker', {
+      schema: { min: { default: 0.8 }, max: { default: 1.2 }, speed: { default: 0.5 } },
+      init: function () { this.seed = Math.random() * 1000; },
+      tick: function (t) {
+        const time = (t * 0.001 * this.data.speed) + this.seed;
+        const noise = (Math.sin(time * 6.1) + Math.sin(time * 2.3) + Math.sin(time * 11.7)) / 3;
+        this.el.setAttribute('light', 'intensity', this.data.min + ((noise + 1) / 2) * (this.data.max - this.data.min));
+      }
+    });
+
+    AFRAME.registerComponent('tag-floors', {
+      schema: { floorNames: { default: ['san nha phong khach','san nha phoing an','san nha TOILET','san giat do','SAN PHONG NGU'] } },
+      init: function () {
+        this.el.addEventListener('model-loaded', () => {
+          const root = this.el.getObject3D('mesh'); if (!root) return;
+          const floorContainer = document.createElement('a-entity');
+          floorContainer.setAttribute('id', 'floor-colliders');
+          this.el.sceneEl.appendChild(floorContainer);
+          this.data.floorNames.forEach((name) => {
+            const obj = root.getObjectByName(name); if (!obj) return;
+            const box = new THREE.Box3().setFromObject(obj);
+            const size = new THREE.Vector3(); const center = new THREE.Vector3();
+            box.getSize(size); box.getCenter(center);
+            const plane = document.createElement('a-plane');
+            plane.setAttribute('class', 'floor'); plane.setAttribute('rotation', '-90 0 0');
+            plane.setAttribute('width', Math.max(size.x, 0.1)); plane.setAttribute('height', Math.max(size.z, 0.1));
+            plane.setAttribute('position', `${center.x} ${box.min.y + 0.02} ${center.z}`);
+            plane.setAttribute('visible', 'false'); plane.setAttribute('data-floor-name', name);
+            floorContainer.appendChild(plane);
+          });
+        });
+      }
+    });
+
+    AFRAME.registerComponent('tag-colliders', {
+      schema: { objectKeys: { default: ['table', 'chair', 'door'] } },
+      init: function () {
+        this.el.addEventListener('model-loaded', () => {
+          const root = this.el.getObject3D('mesh'); if (!root) return;
+          root.updateMatrixWorld(true);
+          const colliderContainer = document.createElement('a-entity');
+          colliderContainer.setAttribute('id', 'static-colliders');
+          this.el.sceneEl.appendChild(colliderContainer);
+
+          const addColliderForMesh = (mesh) => {
+            const box = new THREE.Box3().setFromObject(mesh);
+            if (box.isEmpty()) return;
+            const size = new THREE.Vector3(); const center = new THREE.Vector3();
+            box.getSize(size); box.getCenter(center);
+            let horizontalExpand = 1.1;
+            const verticalShrink = 0.92;
+            const longRatioX = size.x / Math.max(size.z, 0.001);
+            const longRatioZ = size.z / Math.max(size.x, 0.001);
+            const smallThreshold = 0.4;
+            if (longRatioX > 2 || longRatioZ > 2) {
+              horizontalExpand = 1.02;
+            } else if (size.x < smallThreshold && size.z < smallThreshold) {
+              horizontalExpand = 1.2;
+            } else if (size.x < smallThreshold || size.z < smallThreshold) {
+              horizontalExpand = 1.15;
+            }
+            const isChairMesh = (node) => {
+              let current = node;
+              while (current) {
+                if (current.name && /chair/i.test(current.name)) return true;
+                current = current.parent;
+              }
+              return false;
+            };
+            const isChair = isChairMesh(mesh);
+            const isChairFrame = mesh.name && /leg|support|spine|back|seat|backrest/i.test(mesh.name);
+            if (isChair) {
+              // Make chair colliders tighter around the table seating area.
+              horizontalExpand = Math.min(horizontalExpand, 0.92);
+              size.y *= 0.95;
+              if (size.x < 0.18 || size.z < 0.18) {
+                horizontalExpand = Math.min(horizontalExpand, 0.88);
+              }
+            }
+            if (isChairFrame) {
+              horizontalExpand = Math.min(horizontalExpand, 0.95);
+            }
+            size.x *= horizontalExpand;
+            size.z *= horizontalExpand;
+            size.y *= verticalShrink;
+            const quat = mesh.getWorldQuaternion(new THREE.Quaternion());
+            const euler = new THREE.Euler().setFromQuaternion(quat, 'YXZ');
+            const collider = document.createElement('a-entity');
+            collider.setAttribute('class', 'static-collider');
+            collider.setAttribute('geometry', `primitive: box; width: ${Math.max(size.x, 0.01)}; height: ${Math.max(size.y, 0.01)}; depth: ${Math.max(size.z, 0.01)}`);
+            collider.setAttribute('position', `${center.x} ${center.y} ${center.z}`);
+            collider.setAttribute('rotation', `${THREE.MathUtils.radToDeg(euler.x)} ${THREE.MathUtils.radToDeg(euler.y)} ${THREE.MathUtils.radToDeg(euler.z)}`);
+            collider.setAttribute('visible', 'false');
+            colliderContainer.appendChild(collider);
+          };
+
+          const isFloorMesh = (node) => {
+            const nodeName = node.name && node.name.toLowerCase();
+            if (!nodeName) return false;
+            return ['floor', 'ground', 'mat', 'rug', 'carpet', 'tile'].some(key => nodeName.includes(key));
+          };
+
+          const isCeilingMesh = (node) => {
+            const nodeName = node.name && node.name.toLowerCase();
+            if (!nodeName) return false;
+            return ['ceiling', 'roof', 'top'].some(key => nodeName.includes(key));
+          };
+
+          const isWallLikeMesh = (node) => {
+            const box = new THREE.Box3().setFromObject(node);
+            if (box.isEmpty()) return false;
+            const size = new THREE.Vector3();
+            box.getSize(size);
+            const thickness = Math.min(size.x, size.z);
+            return size.y > 1.4 && (size.x > 1.5 || size.z > 1.5) && thickness < 0.8;
+          };
+
+          root.traverse(node => {
+            if (!node.isMesh) return;
+            let current = node;
+            let matches = false;
+            while (current) {
+              if (current.name && this.data.objectKeys.some(key => current.name.toLowerCase().includes(key))) {
+                matches = true;
+                break;
+              }
+              current = current.parent;
+            }
+            if (!matches && (this.el.id === 'room' || this.el.classList.contains('door'))) {
+              matches = true;
+            }
+            if (matches) {
+              addColliderForMesh(node);
+            }
+          });
+        });
+      }
+    });
+
+    /* ============================================================
+       Component 3: simple-collider (Va chạm người chơi)
+       - CẬP NHẬT: giờ va chạm với cả #room (tường/sàn/đồ đạc cố định
+         trong model) LẪN các vật thể tương tác .item (gấu, kẹp tóc,
+         cửa) — trước đây chỉ chặn #room nên đi xuyên qua được gấu/kẹp tóc.
+       - Vật đang được cầm trên tay (gắn vào camera) được loại trừ
+         khỏi danh sách va chạm, tránh tự đụng vào vật mình đang cầm.
+    ============================================================ */
+    AFRAME.registerComponent('simple-collider', {
+      schema: { objects: { default: '#room, .item, .static-collider' }, radius: { default: 0.4 } },
+      init: function () {
+        this.raycaster = new THREE.Raycaster();
+        this.prevWorldPos = new THREE.Vector3();
+        this.prevLocalPos = new THREE.Vector3();
+        this.dir = new THREE.Vector3();
+        this.side = new THREE.Vector3();
+        setTimeout(() => {
+          this.el.object3D.getWorldPosition(this.prevWorldPos);
+          this.prevLocalPos.copy(this.el.object3D.position);
+        }, 200);
+      },
+      getCollisionMeshes: function (heldEl) {
+        const meshes = [];
+        const els = this.el.sceneEl.querySelectorAll(this.data.objects);
+        els.forEach(el => {
+          if (el === heldEl) return;
+          const root = el.getObject3D('mesh');
+          if (!root) return;
+          root.updateMatrixWorld(true);
+          root.traverse(node => {
+            if (node.isMesh) meshes.push(node);
+          });
+        });
+        return meshes;
+      },
+      tick: function () {
+        const currentWorldPos = new THREE.Vector3();
+        this.el.object3D.getWorldPosition(currentWorldPos);
+        this.dir.subVectors(currentWorldPos, this.prevWorldPos);
+        const dist = this.dir.length();
+        if (dist < 0.001) return;
+        this.dir.normalize();
+
+        const heldItem = this.el.sceneEl.heldItem;
+        const heldEl = heldItem ? heldItem.el : null;
+        const meshes = this.getCollisionMeshes(heldEl);
+        if (!meshes.length) {
+          this.prevWorldPos.copy(currentWorldPos);
+          this.prevLocalPos.copy(this.el.object3D.position);
+          return;
+        }
+
+        this.side.set(-this.dir.z, 0, this.dir.x);
+        const r = this.data.radius;
+        const heights = [0.4, 0.8, 1.2];
+        const lateralOffsets = [0, -r * 0.5, r * 0.5];
+
+        let hit = false;
+        outer:
+        for (let h of heights) {
+          for (let off of lateralOffsets) {
+            const origin = this.prevWorldPos.clone();
+            origin.y = this.prevWorldPos.y - 1.1 + h;
+            origin.addScaledVector(this.side, off);
+            this.raycaster.set(origin, this.dir);
+            this.raycaster.far = dist + r;
+            const intersects = this.raycaster.intersectObjects(meshes, true);
+            if (intersects.length > 0 && intersects[0].distance <= dist + r) {
+              hit = true;
+              break outer;
+            }
+          }
+        }
+
+        if (hit) {
+          this.el.object3D.position.copy(this.prevLocalPos);
+        } else {
+          this.prevWorldPos.copy(currentWorldPos);
+          this.prevLocalPos.copy(this.el.object3D.position);
+        }
+      }
+    });
+
+    AFRAME.registerComponent('head-bob', {
+      schema: { amount: { default: 0.03 }, speed: { default: 12 } },
+      init: function () {
+        this.baseY = this.el.object3D.position.y; this.time = 0;
+        this.prevPos = new THREE.Vector3(); this.el.object3D.getWorldPosition(this.prevPos);
+      },
+      tick: function (t, dt) {
+        let currentPos = new THREE.Vector3(); this.el.object3D.getWorldPosition(currentPos);
+        let dx = currentPos.x - this.prevPos.x; let dz = currentPos.z - this.prevPos.z; let dist = Math.sqrt(dx*dx + dz*dz);
+        if (dist > 0.001 && dist < 0.5) { 
+          this.time += dt * 0.001 * this.data.speed;
+          this.el.object3D.position.y = this.baseY + Math.sin(this.time) * this.data.amount;
+        } else {
+          this.el.object3D.position.y = THREE.MathUtils.lerp(this.el.object3D.position.y, this.baseY, 0.1);
+        }
+        this.prevPos.copy(currentPos);
+      }
+    });
+
+    /* ============================================================
+       Component 5: grabbable (Nhặt lên và đặt xuống)
+       - Giữ mousedown (không bị kẹt khi chuột nhúc nhích)
+       - MỚI: khi thả tay, raycast xuống để đặt vật nằm lên sàn/kệ
+         thay vì lơ lửng giữa không trung
+       - MỚI: mỗi lần chỉ cầm được 1 món, tránh 2 vật chồng lên nhau
+    ============================================================ */
+    AFRAME.registerComponent('grabbable', {
+      init: function () {
+        this.isGrabbed = false;
+        this.cam = document.querySelector('#cam');
+        this.dropRay = new THREE.Raycaster();
+        this.dropRay.far = 4;
+
+        this.el.addEventListener('mousedown', () => {
+          const scene = this.el.sceneEl;
+
+          if (!this.isGrabbed) {
+            // Tay đang cầm vật khác rồi thì thôi, không nhặt chồng lên
+            if (scene.heldItem && scene.heldItem !== this) return;
+
+            this.isGrabbed = true;
+            scene.heldItem = this;
+            this.cam.object3D.attach(this.el.object3D);
+            // Căn chỉnh ra trước mặt 1m, hạ xuống tí cho khỏi che mắt
+            this.el.object3D.position.set(0, -0.3, -1);
+          } else {
+            this.isGrabbed = false;
+            scene.heldItem = null;
+
+            // Giữ vị trí thế giới trước khi thả
+            const worldPos = new THREE.Vector3();
+            this.el.object3D.getWorldPosition(worldPos);
+
+            // Trả object3D về lại scene, giữ nguyên vị trí thế giới
+            this.el.sceneEl.object3D.attach(this.el.object3D);
+
+            // Raycast thẳng xuống tìm mặt sàn/mặt kệ gần nhất để đặt vật nằm lên,
+            // thay vì để nó lơ lửng giữa không trung
+            const colliders = [];
+            Array.from(this.el.sceneEl.querySelectorAll('#room, .item')).forEach(el => {
+              if (el === this.el) return;
+              const mesh = el.getObject3D('mesh');
+              if (!mesh) return;
+              mesh.updateMatrixWorld(true);
+              mesh.traverse(node => {
+                if (node.isMesh) colliders.push(node);
+              });
+            });
+
+            if (colliders.length) {
+              this.dropRay.set(
+                new THREE.Vector3(worldPos.x, worldPos.y + 1, worldPos.z),
+                new THREE.Vector3(0, -1, 0)
+              );
+              const hit = this.dropRay.intersectObjects(colliders, true)[0];
+              if (hit) {
+                this.el.object3D.position.y = hit.point.y + 0.03;
+              }
+            }
+          }
+        });
+      }
+    });
+
+  </script>
+
+  <a-scene
+    fog="type: exponential; color: #050805; density: 0.04"
+    background="color: #020202"
+    shadow="type: pcfsoft"
+    renderer="colorManagement: true; physicallyCorrectLights: true;">
+    <a-assets>
+      <a-asset-item id="room-model" src="dcm.glb"></a-asset-item>
+      <a-asset-item id="cua-model" src="cua.glb"></a-asset-item>
+      <a-asset-item id="teddy-model" src="teddy.glb"></a-asset-item>
+      <a-asset-item id="hairpin-model" src="hairpin.glb"></a-asset-item>
+    </a-assets>
+
+    <!-- ============== HỆ THỐNG ÁNH SÁNG ============== -->
+    <a-light type="ambient" color="#1c261c" intensity="0.45"></a-light>
+    <a-entity light="type: point; color: #7cb860; intensity: 8; distance: 12; decay: 2; castShadow: true" position="-3.5 2.6 -1" flicker="min: 6.5; max: 8.5; speed: 0.3"></a-entity>
+    <a-entity light="type: point; color: #ffdb59; intensity: 10; distance: 15; decay: 2; castShadow: true" position="2.5 2.6 1.5" flicker="min: 8.5; max: 10.5; speed: 0.2"></a-entity>
+
+    <!-- ============== MODEL CĂN PHÒNG ============== -->
+    <a-entity id="room" gltf-model="#room-model" tag-floors tag-colliders></a-entity>
+
+    <!-- ============== CÁC VẬT THỂ TƯƠNG TÁC ============== -->
+    <!-- Cửa: đặt thẳng vào vị trí, dùng tag-colliders để tạo collider chính xác như tường -->
+    <a-entity class="item door" gltf-model="#cua-model" position="0 0 0" tag-colliders></a-entity>
+    <!-- Gấu và Kẹp tóc: Giữ lại hiệu ứng phình to để biết là ngắm trúng -->
+    <a-entity gltf-model="#teddy-model" position="1 0.6 -2" class="item" grabbable
+              animation__hoverin="property: scale; to: 1.1 1.1 1.1; startEvents: mouseenter; dur: 200"
+              animation__hoverout="property: scale; to: 1 1 1; startEvents: mouseleave; dur: 200">
+    </a-entity>
+
+    <a-entity gltf-model="#hairpin-model" position="1.5 0.6 -2" class="item" grabbable
+              animation__hoverin="property: scale; to: 1.2 1.2 1.2; startEvents: mouseenter; dur: 200"
+              animation__hoverout="property: scale; to: 1 1 1; startEvents: mouseleave; dur: 200">
+    </a-entity>
+
+    <!-- ============== NGƯỜI CHƠI / DI CHUYỂN VR ============== -->
+    <a-entity id="rig" position="1 0 0.5">
+      <a-entity id="cam" 
+                camera="near: 0.01; fov: 60" 
+                position="0 1.1 0" 
+                look-controls 
+                wasd-controls="acceleration: 8"
+                simple-collider="objects: #room, .item, .door; radius: 0.4"
+                head-bob="amount: 0.035; speed: 14">
+                
+                <a-cursor color="#ffffff" scale="0.7 0.7 0.7"
+                          cursor="rayOrigin: mouse; fuse: false"
+                          raycaster="objects: .door; far: 6">
+                </a-cursor>
+      </a-entity>
+
+      <a-entity hand-controls="hand: left" teleport-controls="cameraRig: #rig; teleportOrigin: #cam; button: trigger; collisionEntities: .floor; startEvents: triggerdown; endEvents: triggerup"></a-entity>
+      <a-entity hand-controls="hand: right" teleport-controls="cameraRig: #rig; teleportOrigin: #cam; button: trigger; collisionEntities: .floor; startEvents: triggerdown; endEvents: triggerup"></a-entity>
+    </a-entity>
+
+  </a-scene>
+
+</body>
+</html>
