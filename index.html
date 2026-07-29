@@ -402,7 +402,7 @@ Send GIF
          thay vì lơ lửng giữa không trung
        - MỚI: mỗi lần chỉ cầm được 1 món, tránh 2 vật chồng lên nhau
     ============================================================ */
-    AFRAME.registerComponent('grabbable', {
+    AFRAME.registerComponent('my-grabbable', {
       init: function () {
         this.isGrabbed = false;
         this.cam = document.querySelector('#cam');
@@ -486,12 +486,12 @@ Send GIF
     <!-- Cửa: đặt thẳng vào vị trí, dùng tag-colliders để tạo collider chính xác như tường -->
     <a-entity class="item door" gltf-model="#cua-model" position="0 0 0" tag-colliders></a-entity>
     <!-- Gấu và Kẹp tóc: Giữ lại hiệu ứng phình to để biết là ngắm trúng -->
-    <a-entity gltf-model="#teddy-model" position="1 0.6 -2" class="item" grabbable
+    <a-entity gltf-model="#teddy-model" position="1 0.6 -2" class="item" my-grabbable
               animation__hoverin="property: scale; to: 1.1 1.1 1.1; startEvents: mouseenter; dur: 200"
               animation__hoverout="property: scale; to: 1 1 1; startEvents: mouseleave; dur: 200">
     </a-entity>
 
-    <a-entity gltf-model="#hairpin-model" position="1.5 0.6 -2" class="item" grabbable
+    <a-entity gltf-model="#hairpin-model" position="1.5 0.6 -2" class="item" my-grabbable
               animation__hoverin="property: scale; to: 1.2 1.2 1.2; startEvents: mouseenter; dur: 200"
               animation__hoverout="property: scale; to: 1 1 1; startEvents: mouseleave; dur: 200">
     </a-entity>
